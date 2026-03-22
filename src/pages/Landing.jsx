@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import FaceMeshSVG from '../components/FaceMeshSVG.jsx'
+import { useCalibration } from '../context/CalibrationContext.jsx'
 
 // ─── animation helpers ────────────────────────────────────────────────────────
 const fadeUp = (delay = 0) => ({
@@ -51,6 +52,7 @@ const gestures = [
 // ─── component ────────────────────────────────────────────────────────────────
 export default function Landing() {
   const navigate = useNavigate()
+  const { isCalibrated } = useCalibration()
 
   return (
     <motion.div
@@ -174,7 +176,7 @@ export default function Landing() {
           {/* CTA */}
           <motion.div {...fadeUp(0.46)}>
             <motion.button
-              onClick={() => navigate('/play')}
+              onClick={() => navigate(isCalibrated ? '/play' : '/calibrate')}
               whileHover={{ scale: 1.04, boxShadow: '0 0 48px rgba(124,58,237,0.55)' }}
               whileTap={{ scale: 0.97 }}
               style={{

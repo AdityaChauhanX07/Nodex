@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useFaceDetection }   from '../hooks/useFaceDetection.js'
 import { useGestures }        from '../hooks/useGestures.js'
 import { useGesture }         from '../context/GestureContext.jsx'
+import { useCalibration }     from '../context/CalibrationContext.jsx'
 import { DEFAULT_THRESHOLDS } from '../utils/thresholds.js'
 import { COMMANDS }  from '../constants/commands.js'
 import { GESTURES }  from '../constants/gestures.js'
@@ -47,10 +49,12 @@ const GESTURE_LABELS = {
 }
 
 export default function Player() {
+  const navigate = useNavigate()
   const videoRef = useRef(null)
   const { landmarks, isLoading, isTracking, error } = useFaceDetection({ videoRef })
 
-  const { gestureMap } = useGesture()
+  const { gestureMap }                    = useGesture()
+  const { calibrationData, isCalibrated } = useCalibration()
 
   const {
     currentGesture,
@@ -59,7 +63,7 @@ export default function Player() {
     metrics,
     lastCommand,
     lastCommandTime,
-  } = useGestures({ landmarks, gestureMap })
+  } = useGestures({ landmarks, gestureMap, calibration: calibrationData })
 
   const [mode, setMode] = useState('youtube')
 
@@ -168,6 +172,33 @@ export default function Player() {
         <ModeSelector mode={mode} onChange={setMode} />
       </div>
 
+      {/* ── CALIBRATION BANNER (shown when not calibrated) ───────────────── */}
+      {!isCalibrated && (
+        <div style={{
+          padding:      '8px 24px',
+          background:   'rgba(124,58,237,0.07)',
+          borderBottom: '1px solid rgba(124,58,237,0.12)',
+          display:      'flex',
+          alignItems:   'center',
+          gap:          6,
+        }}>
+          <span style={{ fontSize: 12, color: '#7C3AED' }}>&#9670;</span>
+          <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#A78BFA' }}>
+            Tip: gestures work better when calibrated to your face.
+          </span>
+          <button
+            onClick={() => navigate('/calibrate')}
+            style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: '#A78BFA', fontSize: 12, fontFamily: 'DM Sans, sans-serif',
+              textDecoration: 'underline', padding: 0, marginLeft: 2,
+            }}
+          >
+            Calibrate now
+          </button>
+        </div>
+      )}
+
       {/* ── MAIN CONTENT ─────────────────────────────────────────────────── */}
       <div style={{ flex: 1, padding: '24px 24px 160px' }}>
         {mode === 'youtube' && (
@@ -235,17 +266,31 @@ export default function Player() {
               <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', color: '#374151', textTransform: 'uppercase' }}>
                 Debug
               </span>
-              <button
-                onClick={() => setDebugOpen(false)}
-                style={{
-                  background: 'transparent', border: 'none', cursor: 'pointer',
-                  color: '#374151', fontSize: 14, lineHeight: 1, padding: '0 2px',
-                  display: 'flex', alignItems: 'center',
-                }}
-                title="Collapse"
-              >
-                &#x2212;
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <button
+                  onClick={() => navigate('/calibrate')}
+                  title="Recalibrate"
+                  style={{
+                    background: 'transparent', border: 'none', cursor: 'pointer',
+                    color: isCalibrated ? '#374151' : '#7C3AED',
+                    fontSize: 11, fontFamily: 'DM Sans, sans-serif',
+                    padding: 0, lineHeight: 1,
+                  }}
+                >
+                  {isCalibrated ? 'recal' : '\u25cf recal'}
+                </button>
+                <button
+                  onClick={() => setDebugOpen(false)}
+                  style={{
+                    background: 'transparent', border: 'none', cursor: 'pointer',
+                    color: '#374151', fontSize: 14, lineHeight: 1, padding: '0 2px',
+                    display: 'flex', alignItems: 'center',
+                  }}
+                  title="Collapse"
+                >
+                  &#x2212;
+                </button>
+              </div>
             </div>
 
             {/* Face Metrics */}
