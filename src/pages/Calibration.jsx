@@ -285,10 +285,7 @@ export default function Calibration() {
                     Saved calibration found \u2014
                   </span>
                   <button
-                    onClick={() => {
-                      const tutorialDone = localStorage.getItem('nodex_tutorial_done') === 'true'
-                      navigate(tutorialDone ? '/play' : '/tutorial')
-                    }}
+                    onClick={() => navigate('/play')}
                     style={{
                       background: 'transparent', border: 'none', cursor: 'pointer',
                       color: '#22C55E', fontSize: 13, fontFamily: 'DM Sans, sans-serif',
@@ -523,10 +520,7 @@ export default function Calibration() {
                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}
               >
                 <motion.button
-                  onClick={() => {
-                    const tutorialDone = localStorage.getItem('nodex_tutorial_done') === 'true'
-                    navigate(tutorialDone ? '/play' : '/tutorial')
-                  }}
+                  onClick={() => navigate('/play')}
                   whileHover={{ scale: 1.03, boxShadow: '0 0 36px rgba(124,58,237,0.55)' }}
                   whileTap={{ scale: 0.97 }}
                   style={{

@@ -10,21 +10,19 @@ import {
   computeEAR,
   computeMouthRatio,
 } from '../utils/gestureLogic.js'
-import { DEFAULT_THRESHOLDS as T } from '../utils/thresholds.js'
-
 // ─── Constants ────────────────────────────────────────────────────────────────
-const TUTORIAL_KEY                = 'nodex_tutorial_done'
-const EYE_HOLD_MS                 = 500
-const PRACTICE_TIMEOUT            = 5000
-const TUTORIAL_THRESHOLD_MULTIPLIER = 0.7  // 30% easier than normal gameplay
+const TUTORIAL_KEY     = 'nodex_tutorial_done'
+const EYE_HOLD_MS      = 500
+const PRACTICE_TIMEOUT = 5000
 
-// Tutorial-specific thresholds — lower angle/ratio thresholds = smaller movements required.
-// earClose is intentionally RAISED (higher = easier, eyes don't need to close as fully).
+// Tutorial thresholds — intentionally generous so learners get clear feedback.
+// Lower yaw/pitch/mouthOpen = smaller movement needed to trigger.
+// Higher earClose = eyes don't need to close as fully.
 const TT = {
-  yaw:       T.yaw       * TUTORIAL_THRESHOLD_MULTIPLIER,  // 12 → 8.4°
-  pitch:     T.pitch     * TUTORIAL_THRESHOLD_MULTIPLIER,  // 10 → 7°
-  earClose:  T.earClose  * (1 / TUTORIAL_THRESHOLD_MULTIPLIER), // 0.18 → 0.257
-  mouthOpen: T.mouthOpen * TUTORIAL_THRESHOLD_MULTIPLIER,  // 0.25 → 0.175
+  yaw:       3,     // degrees (gameplay uses 12)
+  pitch:     3,     // degrees (gameplay uses 10)
+  earClose:  0.23,  // EAR ratio — higher = easier (gameplay uses 0.18)
+  mouthOpen: 0.08,  // mouth ratio (gameplay uses 0.25)
 }
 
 // ─── Gesture step definitions ─────────────────────────────────────────────────
@@ -115,7 +113,7 @@ const GESTURE_STEPS = [
     success:     'Next Track! ⏭',
     // progress for eyes-closed is driven externally via holdRef
     getProgress: () => 0,
-    isDetected:  (lm) => computeEAR(lm) < T.earClose,
+    isDetected:  (lm) => computeEAR(lm) < TT.earClose,
   },
 ]
 
@@ -327,7 +325,6 @@ export default function Tutorial() {
         const held = Date.now() - eyeHoldStart.current
         const p = Math.min(1, held / EYE_HOLD_MS)
         setProgress(p)
-        console.log('[Tutorial] eyes-closed | EAR:', ear.toFixed(3), '| held:', held, 'ms | progress:', p.toFixed(2))
         if (held >= EYE_HOLD_MS) handleDetected()
       } else {
         // Eyes approaching closed — show how far they've dropped
@@ -337,22 +334,10 @@ export default function Tutorial() {
         setProgress(p)
       }
     } else {
-      const rawYaw   = computeYaw(landmarks)
-      const rawPitch = computePitch(landmarks)
-      const rawMouth = computeMouthRatio(landmarks)
-      const adjYaw   = rawYaw   - (bl?.yaw   ?? 0)
-      const adjPitch = rawPitch - (bl?.pitch  ?? 0)
-      const adjMouth = rawMouth - (bl?.mouth  ?? 0)
-
-      console.log('[Tutorial] step', step, gs.id,
-        '| yaw:', adjYaw.toFixed(1), '/ ±', TT.yaw,
-        '| pitch:', adjPitch.toFixed(1), '/ ±', TT.pitch,
-        '| mouth:', adjMouth.toFixed(3), '/', TT.mouthOpen,
-        '| ear:', ear.toFixed(3))
-
       const p = gs.getProgress(landmarks, bl)
       setProgress(p)
-      if (gs.isDetected(landmarks, bl)) handleDetected()
+      // Trigger at >= 0.92 to avoid floating-point edge cases right at the boundary
+      if (p >= 0.92 || gs.isDetected(landmarks, bl)) handleDetected()
     }
   }, [landmarks, step, detected, baselines, handleDetected]) // eslint-disable-line react-hooks/exhaustive-deps
 
