@@ -39,14 +39,14 @@ const features = [
 ]
 
 const gestures = [
-  { icon: '↑', gesture: 'Nod Up',        command: 'Volume Up'   },
-  { icon: '↓', gesture: 'Nod Down',      command: 'Volume Down' },
-  { icon: '←', gesture: 'Turn Left',     command: 'Pause'       },
-  { icon: '→', gesture: 'Turn Right',    command: 'Play'        },
-  { icon: '●', gesture: 'Eyes Closed',   command: 'Next Track'  },
-  { icon: '○', gesture: 'Mouth Open',    command: 'Mute'        },
-  { icon: '↺', gesture: 'Tilt Left',     command: 'Rewind 10s'  },
-  { icon: '↻', gesture: 'Tilt Right',    command: 'Skip 10s'    },
+  { icon: '↑', gesture: 'Nod Up',       command: 'Volume Up'    },
+  { icon: '↓', gesture: 'Nod Down',     command: 'Volume Down'  },
+  { icon: '←', gesture: 'Turn Left',  command: 'Prev Video' },
+  { icon: '→', gesture: 'Turn Right', command: 'Next Video' },
+  { icon: '●', gesture: 'Eyes Closed',  command: 'Mute / Unmute' },
+  { icon: '○', gesture: 'Mouth Open',   command: 'Play / Pause' },
+  { icon: '↺', gesture: 'Tilt Left',  command: 'Rewind 10s' },
+  { icon: '↻', gesture: 'Tilt Right', command: 'Skip 10s'   },
 ]
 
 // ─── component ────────────────────────────────────────────────────────────────

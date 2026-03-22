@@ -100,6 +100,19 @@ export function useYouTube(containerId) {
     }
   }
 
+  const loadPlaylist = (videoIds, startIndex = 0) => {
+    if (!player.current) return
+    try {
+      player.current.loadPlaylist({
+        playlist: videoIds,
+        index: startIndex,
+        startSeconds: 0,
+      })
+    } catch (e) {
+      console.error('[YT] loadPlaylist error:', e)
+    }
+  }
+
   const play        = () => player.current?.playVideo?.()
   const pause       = () => player.current?.pauseVideo?.()
   const mute        = () => player.current?.mute?.()
@@ -121,6 +134,6 @@ export function useYouTube(containerId) {
     player.current?.seekTo?.(Math.max(0, t - sec), true)
   }
 
-  return { player, isReady, loadVideo, play, pause, mute, unmute,
+  return { player, isReady, loadVideo, loadPlaylist, play, pause, mute, unmute,
            volumeUp, volumeDown, skipForward, skipBack }
 }

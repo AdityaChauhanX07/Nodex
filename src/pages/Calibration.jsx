@@ -89,7 +89,7 @@ export default function Calibration() {
             display: 'flex', alignItems: 'center', gap: 4, padding: 0,
           }}
         >
-          \u2190 Back
+          {'← Back'}
         </button>
         <span style={{
           flex: 1, textAlign: 'center',
@@ -280,7 +280,7 @@ export default function Calibration() {
                   padding: '10px 16px', borderRadius: 10, marginBottom: 20,
                   background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
                 }}>
-                  <span style={{ fontSize: 14 }}>&#x2713;</span>
+                  <span style={{ fontSize: 14 }}>✓</span>
                   <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#22C55E' }}>
                     Saved calibration found \u2014
                   </span>
@@ -292,7 +292,7 @@ export default function Calibration() {
                       textDecoration: 'underline', padding: 0,
                     }}
                   >
-                    continue \u2192
+                    {'continue →'}
                   </button>
                 </div>
               )}
@@ -380,7 +380,7 @@ export default function Calibration() {
                         animate={done ? { scale: 1 } : {}}
                         transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                       >
-                        {done ? (passed ? '&#x2713;' : '\u2013') : test.icon}
+                        {done ? (passed ? '✓' : '–') : test.icon}
                       </motion.span>
                       <span style={{
                         fontFamily: 'DM Sans, sans-serif', fontSize: 12,
@@ -435,7 +435,7 @@ export default function Calibration() {
                             cursor: 'pointer',
                           }}
                         >
-                          Skip this gesture \u2192
+                          {'Skip this gesture →'}
                         </button>
                       </motion.div>
                     )}
@@ -468,7 +468,7 @@ export default function Calibration() {
                   boxShadow: '0 0 36px rgba(34,197,94,0.28)',
                 }}
               >
-                &#x2713;
+                ✓
               </motion.div>
 
               <motion.p
@@ -532,7 +532,7 @@ export default function Calibration() {
                     boxShadow: '0 0 28px rgba(124,58,237,0.35)',
                   }}
                 >
-                  Start Using Nodex \u2192
+                  {'Start Using Nodex →'}
                 </motion.button>
                 <button
                   onClick={reset}

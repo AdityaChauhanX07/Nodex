@@ -4,6 +4,7 @@ export const COMMANDS = Object.freeze({
   VOL_UP:   'VOL_UP',
   VOL_DOWN: 'VOL_DOWN',
   NEXT:     'NEXT',
+  PREV:     'PREV',
   REWIND:   'REWIND',
   MUTE:     'MUTE',
   SKIP:     'SKIP',

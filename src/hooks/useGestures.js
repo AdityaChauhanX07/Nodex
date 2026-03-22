@@ -8,6 +8,7 @@ import { COMMANDS } from '../constants/commands.js'
 import {
   DEFAULT_GESTURE_MAP,
   DEFAULT_COOLDOWN_MS,
+  DEFAULT_COOLDOWNS,
   EYE_CLOSE_MIN_MS,
 } from '../constants/defaults.js'
 import { Cooldown } from '../utils/cooldown.js'
@@ -50,7 +51,10 @@ export function useGestures({
   // Initialise one Cooldown instance per gesture (once)
   if (!cooldownsRef.current) {
     cooldownsRef.current = Object.fromEntries(
-      Object.values(GESTURES).map(g => [g, new Cooldown(DEFAULT_COOLDOWN_MS)])
+      Object.values(GESTURES).map(g => [
+        g,
+        new Cooldown(DEFAULT_COOLDOWNS[g] ?? DEFAULT_COOLDOWN_MS),
+      ])
     )
   }
 
@@ -163,6 +167,16 @@ export function useGestures({
         if (cooldownsRef.current[detected].canFire()) {
           fireCommand(detected)
         }
+      }
+    }
+
+    if (
+      activeGestureRef.current === GESTURES.HEAD_UP ||
+      activeGestureRef.current === GESTURES.HEAD_DOWN
+    ) {
+      const detected = activeGestureRef.current
+      if (cooldownsRef.current[detected].canFire()) {
+        fireCommand(detected)
       }
     }
 

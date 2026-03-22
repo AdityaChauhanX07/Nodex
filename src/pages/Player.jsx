@@ -51,7 +51,7 @@ export default function Player() {
   const { landmarks, isLoading, isTracking, error } = useFaceDetection({ videoRef })
 
   const { gestureMap }                    = useGesture()
-  const { calibrationData, isCalibrated } = useCalibration()
+  const { calibrationData, isCalibrated, reset } = useCalibration()
 
   const {
     currentGesture,
@@ -164,6 +164,19 @@ export default function Player() {
             {isTracking ? 'Tracking' : 'No face'}
           </Chip>
         </div>
+        <button
+          onClick={() => { reset(); navigate('/calibrate') }}
+          style={{
+            padding: '4px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
+            background: 'rgba(124,58,237,0.15)',
+            border: '1px solid rgba(124,58,237,0.3)',
+            color: '#A78BFA',
+            fontSize: 11, fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Recalibrate
+        </button>
       </header>
 
       {/* ── CALIBRATION BANNER ───────────────────────────────────────────── */}
@@ -254,7 +267,7 @@ export default function Player() {
                   padding: '0 2px', display: 'flex', alignItems: 'center',
                 }}
               >
-                \u00d7
+                ×
               </button>
             </div>
 

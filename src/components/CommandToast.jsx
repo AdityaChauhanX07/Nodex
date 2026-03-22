@@ -3,14 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { COMMANDS } from '../constants/commands.js'
 
 const COMMAND_DISPLAY = {
-  [COMMANDS.PLAY]:     { label: 'Play',        color: '#22C55E' },
-  [COMMANDS.PAUSE]:    { label: 'Pause',        color: '#F59E0B' },
-  [COMMANDS.VOL_UP]:   { label: 'Volume Up',    color: '#06B6D4' },
-  [COMMANDS.VOL_DOWN]: { label: 'Volume Down',  color: '#06B6D4' },
-  [COMMANDS.NEXT]:     { label: 'Next',          color: '#A78BFA' },
-  [COMMANDS.MUTE]:     { label: 'Mute',          color: '#EF4444' },
-  [COMMANDS.REWIND]:   { label: 'Rewind 10s',    color: '#A78BFA' },
-  [COMMANDS.SKIP]:     { label: 'Skip 10s',      color: '#A78BFA' },
+  [COMMANDS.PLAY]:     { label: 'Play / Pause',   color: '#22C55E' },
+  [COMMANDS.PAUSE]:    { label: 'Pause',           color: '#F59E0B' },
+  [COMMANDS.VOL_UP]:   { label: 'Volume Up',       color: '#06B6D4' },
+  [COMMANDS.VOL_DOWN]: { label: 'Volume Down',     color: '#06B6D4' },
+  [COMMANDS.NEXT]:     { label: 'Next Video',      color: '#A78BFA' },
+  [COMMANDS.PREV]:     { label: 'Previous Video',  color: '#A78BFA' },
+  [COMMANDS.REWIND]:   { label: 'Rewind 10s',      color: '#A78BFA' },
+  [COMMANDS.SKIP]:     { label: 'Skip 10s',        color: '#A78BFA' },
+  [COMMANDS.MUTE]:     { label: 'Mute / Unmute',   color: '#EF4444' },
 }
 
 export default function CommandToast({ command, commandTime }) {

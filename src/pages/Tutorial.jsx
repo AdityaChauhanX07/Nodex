@@ -30,12 +30,12 @@ const GESTURE_STEPS = [
   {
     id:          'head-left',
     name:        'Head Left',
-    command:     'Pause ⏸',
+    command:     'Previous Video ⏮',
     icon:        '←',
     color:       '#A78BFA',
     instruction: 'Turn your head to the LEFT',
     description: 'Rotate your head left — like saying "no" to one side. Hold until the bar fills.',
-    success:     "That's Pause! ⏸",
+    success:     'Previous Video! ⏮',
     getProgress: (lm, bl) => {
       const yaw = computeYaw(lm) - (bl?.yaw ?? 0)
       return Math.min(1, Math.max(0, -yaw) / TT.yaw)
@@ -45,12 +45,12 @@ const GESTURE_STEPS = [
   {
     id:          'head-right',
     name:        'Head Right',
-    command:     'Play ▶',
+    command:     'Next Video ⏭',
     icon:        '→',
     color:       '#22C55E',
     instruction: 'Turn your head to the RIGHT',
     description: 'Rotate your head right. Same motion, opposite direction.',
-    success:     "That's Play! ▶",
+    success:     'Next Video! ⏭',
     getProgress: (lm, bl) => {
       const yaw = computeYaw(lm) - (bl?.yaw ?? 0)
       return Math.min(1, Math.max(0,  yaw) / TT.yaw)
@@ -90,12 +90,12 @@ const GESTURE_STEPS = [
   {
     id:          'mouth-open',
     name:        'Mouth Open',
-    command:     'Mute 🔇',
+    command:     'Play / Pause ⏯',
     icon:        '○',
     color:       '#EF4444',
     instruction: 'Open your MOUTH wide',
     description: 'Open wider than a normal yawn. The threshold was calibrated to your face.',
-    success:     "That's Mute! 🔇",
+    success:     'Play / Pause! ⏯',
     getProgress: (lm, bl) => {
       const mouth = computeMouthRatio(lm) - (bl?.mouth ?? 0)
       return Math.min(1, Math.max(0, mouth) / TT.mouthOpen)
@@ -105,12 +105,12 @@ const GESTURE_STEPS = [
   {
     id:          'eyes-closed',
     name:        'Eyes Closed',
-    command:     'Next Track ⏭',
+    command:     'Mute / Unmute 🔇',
     icon:        '●',
     color:       '#7C3AED',
     instruction: 'Close your EYES for about 1 second',
     description: 'Close both eyes deliberately — hold them shut, do not blink. Regular blinks are filtered out.',
-    success:     'Next Track! ⏭',
+    success:     'Mute / Unmute! 🔇',
     // progress for eyes-closed is driven externally via holdRef
     getProgress: () => 0,
     isDetected:  (lm) => computeEAR(lm) < TT.earClose,
