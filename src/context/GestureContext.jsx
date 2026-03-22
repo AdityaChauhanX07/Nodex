@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { GESTURES } from '../constants/gestures.js'
 import { COMMANDS } from '../constants/commands.js'
 import { DEFAULT_GESTURE_MAP } from '../constants/defaults.js'
@@ -13,6 +13,10 @@ export function GestureProvider({ children }) {
   const [confidence,      setConfidence]      = useState(0)
   const [metrics,         setMetrics]         = useState({ yaw: 0, pitch: 0, roll: 0, ear: 0, mouth: 0 })
   const [gestureMap,      setGestureMap]      = useState(DEFAULT_GESTURE_MAP)
+
+  useEffect(() => {
+    console.log('[GESTURES] map:', DEFAULT_GESTURE_MAP)
+  }, [])
 
   const value = {
     currentGesture,  setCurrentGesture,

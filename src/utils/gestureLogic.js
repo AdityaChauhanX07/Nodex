@@ -40,7 +40,7 @@ export function computeYaw(landmarks) {
   if (halfWidth === 0) return 0
 
   // Map ratio (-1…+1) to ±45°
-  return ((nose.x - midX) / halfWidth) * 45
+  return -((nose.x - midX) / halfWidth) * 45
 }
 
 /**
@@ -75,7 +75,7 @@ export function computeRoll(landmarks) {
 
   const dx = right.x - left.x
   const dy = right.y - left.y
-  return Math.atan2(dy, dx) * (180 / Math.PI)
+  return -Math.atan2(dy, dx) * (180 / Math.PI)
 }
 
 /**

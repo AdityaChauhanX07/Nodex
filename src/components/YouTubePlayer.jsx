@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useYouTube } from '../hooks/useYouTube.js'
 import { COMMANDS } from '../constants/commands.js'
 
@@ -21,6 +21,7 @@ export default function YouTubePlayer({ command, commandTime }) {
 
   const [inputVal,    setInputVal]    = useState('')
   const [videoLoaded, setVideoLoaded] = useState(false)
+  const pendingVideoIdRef = useRef(null)
 
   // Dispatch gesture commands only after a video is actually loaded
   useEffect(() => {
@@ -47,9 +48,23 @@ export default function YouTubePlayer({ command, commandTime }) {
   const handleLoad = () => {
     const id = extractVideoId(inputVal.trim())
     if (!id) return
-    loadVideo(id)
     setVideoLoaded(true)
+    if (isReady) {
+      loadVideo(id)
+      console.log('[YT] loaded immediately:', id)
+    } else {
+      pendingVideoIdRef.current = id
+      console.log('[YT] saved pending:', id)
+    }
   }
+
+  useEffect(() => {
+    if (isReady && pendingVideoIdRef.current) {
+      console.log('[YT] loading pending:', pendingVideoIdRef.current)
+      loadVideo(pendingVideoIdRef.current)
+      pendingVideoIdRef.current = null
+    }
+  }, [isReady])
 
   return (
     <div>
@@ -94,15 +109,14 @@ export default function YouTubePlayer({ command, commandTime }) {
         border:       '1px solid rgba(255,255,255,0.06)',
       }}>
         {/* YouTube iframe target — always in DOM so the API can attach */}
-        <div
-          id="yt-player"
-          style={{
-            position:      'absolute',
-            inset:         0,
-            opacity:       videoLoaded ? 1 : 0,
-            pointerEvents: videoLoaded ? 'auto' : 'none',
-          }}
-        />
+        <div style={{
+          position:      'absolute',
+          inset:         0,
+          opacity:       videoLoaded ? 1 : 0,
+          pointerEvents: videoLoaded ? 'auto' : 'none',
+        }}>
+          <div id="yt-player" style={{ width: '100%', height: '100%' }} />
+        </div>
 
         {/* Placeholder — shown before any URL is loaded */}
         {!videoLoaded && (

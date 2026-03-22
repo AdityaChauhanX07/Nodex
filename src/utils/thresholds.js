@@ -5,14 +5,14 @@
 // Yaw / pitch / roll:      approximate degrees via atan2 / ratio math
 
 export const DEFAULT_THRESHOLDS = {
-  yaw:       12,   // degrees — head turn left/right
-  pitch:     10,   // degrees — head nod up/down
-  roll:       8,   // degrees — head tilt ear-to-shoulder
+  yaw:       16,   // degrees — head turn left/right
+  pitch:     14,   // degrees — head nod up/down
+  roll:      11,   // degrees — head tilt ear-to-shoulder
 
-  earClose:  0.18, // EAR below this → eyes closed  (Euclidean formula)
-  mouthOpen: 0.25, // mouth ratio above this → mouth open
+  earClose:  0.16, // EAR below this → eyes closed  (Euclidean formula)
+  mouthOpen: 0.28, // mouth ratio above this → mouth open
 
-  hysteresis: 2,   // extra margin before re-arming a gesture
+  hysteresis: 3,   // extra margin before re-arming a gesture
 }
 
 export const SENSITIVITY_PRESETS = {
