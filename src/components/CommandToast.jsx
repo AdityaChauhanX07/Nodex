@@ -1,66 +1,89 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useGesture } from '../context/GestureContext.jsx'
 import { COMMANDS } from '../constants/commands.js'
 
-const COMMAND_ICONS = {
-  [COMMANDS.PLAY]: '▶',
-  [COMMANDS.PAUSE]: '⏸',
-  [COMMANDS.VOL_UP]: '🔊+',
-  [COMMANDS.VOL_DOWN]: '🔉−',
-  [COMMANDS.NEXT]: '⏭',
-  [COMMANDS.REWIND]: '⏮',
-  [COMMANDS.MUTE]: '🔇',
-  [COMMANDS.SKIP]: '⏩',
+const TOAST_CONFIG = {
+  [COMMANDS.PLAY]:     { icon: '▶',  label: 'Playing',     color: '#22C55E' },
+  [COMMANDS.PAUSE]:    { icon: '⏸',  label: 'Paused',      color: '#F59E0B' },
+  [COMMANDS.VOL_UP]:   { icon: '🔊', label: 'Volume Up',   color: '#06B6D4' },
+  [COMMANDS.VOL_DOWN]: { icon: '🔉', label: 'Volume Down', color: '#06B6D4' },
+  [COMMANDS.NEXT]:     { icon: '⏭',  label: 'Next',        color: '#A78BFA' },
+  [COMMANDS.REWIND]:   { icon: '⏪',  label: 'Rewind 10s',  color: '#A78BFA' },
+  [COMMANDS.MUTE]:     { icon: '🔇', label: 'Muted',       color: '#EF4444' },
+  [COMMANDS.SKIP]:     { icon: '⏩',  label: 'Skip 10s',    color: '#A78BFA' },
 }
 
-const COMMAND_COLORS = {
-  [COMMANDS.PLAY]: '#22C55E',
-  [COMMANDS.PAUSE]: '#F59E0B',
-  [COMMANDS.VOL_UP]: '#06B6D4',
-  [COMMANDS.VOL_DOWN]: '#06B6D4',
-  [COMMANDS.NEXT]: '#A78BFA',
-  [COMMANDS.REWIND]: '#A78BFA',
-  [COMMANDS.MUTE]: '#EF4444',
-  [COMMANDS.SKIP]: '#A78BFA',
-}
-
-export default function CommandToast() {
-  const { command } = useGesture()
+/**
+ * CommandToast — large center-screen confirmation overlay.
+ * Props:
+ *   command     — current command string (COMMANDS.NONE when idle)
+ *   commandTime — timestamp of command (used as AnimatePresence key so the
+ *                 same command re-animates when fired twice)
+ */
+export default function CommandToast({ command, commandTime }) {
+  const cfg = TOAST_CONFIG[command]
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none flex items-center justify-center"
-      style={{ zIndex: 100 }}
+      style={{
+        position:       'fixed',
+        inset:          0,
+        display:        'flex',
+        alignItems:     'center',
+        justifyContent: 'center',
+        pointerEvents:  'none',
+        zIndex:         100,
+      }}
     >
-      <AnimatePresence>
-        {command && (
+      <AnimatePresence mode="wait">
+        {cfg && (
           <motion.div
-            key={command + Date.now()}
-            className="flex flex-col items-center gap-2"
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.2 }}
-            transition={{ duration: 0.2 }}
+            key={commandTime ?? command}
+            style={{
+              display:        'flex',
+              flexDirection:  'column',
+              alignItems:     'center',
+              gap:            12,
+              padding:        '28px 40px',
+              borderRadius:   20,
+              background:     'rgba(10,10,15,0.85)',
+              border:         `1px solid ${cfg.color}40`,
+              backdropFilter: 'blur(16px)',
+            }}
+            initial={{ opacity: 0, scale: 0.7, y: 10 }}
+            animate={{ opacity: 1, scale: 1,   y: 0,
+              transition: { duration: 0.18, ease: [0.34, 1.56, 0.64, 1] } }}
+            exit={{    opacity: 0, scale: 1.1, y: -6,
+              transition: { duration: 0.22, ease: 'easeIn' } }}
           >
+            {/* Icon circle */}
             <div
-              className="w-20 h-20 rounded-full flex items-center justify-center text-3xl"
               style={{
-                background: `${COMMAND_COLORS[command] ?? '#7C3AED'}20`,
-                border: `2px solid ${COMMAND_COLORS[command] ?? '#7C3AED'}`,
-                backdropFilter: 'blur(12px)',
+                width:          72,
+                height:         72,
+                borderRadius:   '50%',
+                background:     `${cfg.color}18`,
+                border:         `2px solid ${cfg.color}80`,
+                display:        'flex',
+                alignItems:     'center',
+                justifyContent: 'center',
+                fontSize:       34,
+                lineHeight:     1,
               }}
             >
-              {COMMAND_ICONS[command] ?? '✦'}
+              {cfg.icon}
             </div>
+
+            {/* Label */}
             <span
-              className="text-sm font-semibold px-3 py-1 rounded-full"
               style={{
-                background: 'rgba(0,0,0,0.7)',
-                color: COMMAND_COLORS[command] ?? '#A78BFA',
-                backdropFilter: 'blur(8px)',
+                color:       cfg.color,
+                fontSize:    17,
+                fontWeight:  700,
+                fontFamily:  'Outfit, sans-serif',
+                letterSpacing: '0.02em',
               }}
             >
-              {command}
+              {cfg.label}
             </span>
           </motion.div>
         )}

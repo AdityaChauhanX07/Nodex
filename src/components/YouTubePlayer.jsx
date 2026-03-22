@@ -1,9 +1,60 @@
-import { useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useYouTube } from '../hooks/useYouTube.js'
+import { COMMANDS } from '../constants/commands.js'
 
-export default function YouTubePlayer() {
-  const { player, isReady, loadVideo } = useYouTube('yt-player')
+/**
+ * YouTubePlayer
+ * Props:
+ *   command — current COMMANDS.* value from useGestures.  A new (non-NONE)
+ *             value triggers the matching player action via useEffect.
+ *   commandTime — timestamp of the command; changes when the same command
+ *                 fires twice so the effect re-runs even for identical commands.
+ */
+export default function YouTubePlayer({ command, commandTime }) {
+  const {
+    player, isReady, loadVideo,
+    play, pause, volumeUp, volumeDown, skipForward, skipBack,
+  } = useYouTube('yt-player')
+
   const [inputVal, setInputVal] = useState('')
+
+  // Wire gesture commands to player actions
+  useEffect(() => {
+    if (!isReady || !command || command === COMMANDS.NONE) return
+    switch (command) {
+      case COMMANDS.PLAY:
+        play()
+        break
+      case COMMANDS.PAUSE:
+        pause()
+        break
+      case COMMANDS.VOL_UP:
+        volumeUp()
+        break
+      case COMMANDS.VOL_DOWN:
+        volumeDown()
+        break
+      case COMMANDS.MUTE:
+        // Toggle mute
+        player.current?.isMuted?.() ? player.current.unMute?.() : player.current?.mute?.()
+        break
+      case COMMANDS.NEXT:
+        // In single-video mode seek to 80% of the duration as a "skip ahead"
+        {
+          const dur = player.current?.getDuration?.() ?? 0
+          if (dur > 0) player.current?.seekTo?.(dur * 0.8, true)
+        }
+        break
+      case COMMANDS.REWIND:
+        skipBack(10)
+        break
+      case COMMANDS.SKIP:
+        skipForward(10)
+        break
+      default:
+        break
+    }
+  }, [commandTime]) // commandTime changes on every fire — intentional dep
 
   const handleLoad = () => {
     const id = extractVideoId(inputVal.trim())
@@ -36,11 +87,11 @@ export default function YouTubePlayer() {
         id="yt-player"
         className="rounded-xl overflow-hidden"
         style={{
-          width: '100%',
-          maxWidth: 640,
+          width:       '100%',
+          maxWidth:    640,
           aspectRatio: '16/9',
-          background: '#12121A',
-          border: '1px solid rgba(255,255,255,0.06)',
+          background:  '#12121A',
+          border:      '1px solid rgba(255,255,255,0.06)',
         }}
       />
 
@@ -52,25 +103,19 @@ export default function YouTubePlayer() {
       {isReady && (
         <div className="flex gap-3">
           {[
-            {
-              label: '⏮',
-              action: () => {
-                const t = player.current?.getCurrentTime?.() ?? 0
-                player.current?.seekTo?.(Math.max(0, t - 10), true)
-              },
-            },
+            { label: '⏮ −10s', action: () => skipBack(10) },
             {
               label: '⏸ / ▶',
               action: () => {
                 const s = player.current?.getPlayerState?.()
-                s === 1 ? player.current?.pauseVideo?.() : player.current?.playVideo?.()
+                s === 1 ? pause() : play()
               },
             },
-            { label: '⏭', action: () => player.current?.nextVideo?.() },
+            { label: '⏭ +10s', action: () => skipForward(10) },
             {
               label: '🔇',
               action: () => {
-                player.current?.isMuted?.() ? player.current?.unMute?.() : player.current?.mute?.()
+                player.current?.isMuted?.() ? player.current.unMute?.() : player.current?.mute?.()
               },
             },
           ].map(btn => (
