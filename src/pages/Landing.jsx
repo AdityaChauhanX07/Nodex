@@ -176,7 +176,12 @@ export default function Landing() {
           {/* CTA */}
           <motion.div {...fadeUp(0.46)}>
             <motion.button
-              onClick={() => navigate(isCalibrated ? '/play' : '/calibrate')}
+              onClick={() => {
+                const tutorialDone = localStorage.getItem('nodex_tutorial_done') === 'true'
+                if (!isCalibrated) navigate('/calibrate')
+                else if (!tutorialDone) navigate('/tutorial')
+                else navigate('/play')
+              }}
               whileHover={{ scale: 1.04, boxShadow: '0 0 48px rgba(124,58,237,0.55)' }}
               whileTap={{ scale: 0.97 }}
               style={{
