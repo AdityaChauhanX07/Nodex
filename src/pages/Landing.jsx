@@ -1,34 +1,54 @@
-﻿import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import FaceMeshSVG from '../components/FaceMeshSVG.jsx'
 
+// ─── animation helpers ────────────────────────────────────────────────────────
+const fadeUp = (delay = 0) => ({
+  initial:    { opacity: 0, y: 24 },
+  animate:    { opacity: 1, y: 0  },
+  transition: { duration: 0.6, delay, ease: [0.25, 0.46, 0.45, 0.94] },
+})
+
 const pageVariants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
-  exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.5 } },
+  exit:    { opacity: 0, transition: { duration: 0.25 } },
 }
 
+// ─── data ─────────────────────────────────────────────────────────────────────
 const features = [
   {
-    icon: 'â–¶',
+    icon:  '▶',
     title: 'YouTube Control',
-    desc: 'Play, pause, skip, and adjust volume with head nods and eye blinks.',
+    desc:  'Play, pause, skip, and adjust volume with head nods and eye blinks.',
     color: '#EF4444',
   },
   {
-    icon: 'â™«',
+    icon:  '♫',
     title: 'Spotify Playback',
-    desc: 'Control your music queue hands-free. Next track, volume, and more.',
+    desc:  'Control your music queue hands-free — next track, volume, and more.',
     color: '#22C55E',
   },
   {
-    icon: 'â¬œ',
+    icon:  '⬛',
     title: 'Presentations',
-    desc: 'Navigate PDF slides with subtle head gestures. Perfect for demos.',
+    desc:  'Navigate PDF slides with subtle head gestures. Perfect for live demos.',
     color: '#06B6D4',
   },
 ]
 
+const gestures = [
+  { icon: '↑', gesture: 'Nod Up',        command: 'Volume Up'   },
+  { icon: '↓', gesture: 'Nod Down',      command: 'Volume Down' },
+  { icon: '←', gesture: 'Turn Left',     command: 'Pause'       },
+  { icon: '→', gesture: 'Turn Right',    command: 'Play'        },
+  { icon: '●', gesture: 'Eyes Closed',   command: 'Next Track'  },
+  { icon: '○', gesture: 'Mouth Open',    command: 'Mute'        },
+  { icon: '↺', gesture: 'Tilt Left',     command: 'Rewind 10s'  },
+  { icon: '↻', gesture: 'Tilt Right',    command: 'Skip 10s'    },
+]
+
+// ─── component ────────────────────────────────────────────────────────────────
 export default function Landing() {
   const navigate = useNavigate()
 
@@ -40,199 +60,376 @@ export default function Landing() {
       animate="animate"
       exit="exit"
     >
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6">
-        {/* Background grid */}
+      {/* ── HERO ─────────────────────────────────────────────────────────── */}
+      <section
+        style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '0 24px' }}
+      >
+        {/* Dot-grid background */}
         <div
-          className="absolute inset-0 opacity-10"
           style={{
-            backgroundImage:
-              'linear-gradient(rgba(124,58,237,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.3) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            backgroundImage: 'radial-gradient(rgba(124,58,237,0.25) 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
+            maskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black 0%, transparent 100%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black 0%, transparent 100%)',
           }}
         />
+
         {/* Radial glow */}
         <div
-          className="absolute inset-0"
           style={{
-            background:
-              'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(124,58,237,0.12) 0%, transparent 70%)',
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(124,58,237,0.1) 0%, transparent 70%)',
           }}
         />
 
-        <div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto">
-          {/* Animated face mesh illustration */}
-          <motion.div
-            className="mb-10"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
+        {/* Atmospheric FaceMesh — huge, faded, slowly rotating */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.09, rotate: 360 }}
+          transition={{
+            opacity: { duration: 2.5, ease: 'easeOut' },
+            rotate:  { duration: 80, repeat: Infinity, ease: 'linear' },
+          }}
+          style={{
+            position: 'absolute',
+            top: '50%', left: '50%',
+            x: '-50%', y: '-50%',
+            pointerEvents: 'none',
+            transformOrigin: 'center center',
+          }}
+        >
+          <div style={{ transform: 'scale(3.2)', transformOrigin: 'center' }}>
             <FaceMeshSVG />
-          </motion.div>
+          </div>
+        </motion.div>
 
-          {/* Badge */}
-          <motion.div
-            className="mb-6 px-4 py-1.5 rounded-full text-sm font-medium"
-            style={{ background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(124,58,237,0.4)', color: '#A78BFA' }}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+        {/* Hero content */}
+        <div
+          style={{
+            position: 'relative', zIndex: 10,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+            maxWidth: 680,
+          }}
+        >
+          {/* Eyebrow */}
+          <motion.p
+            {...fadeUp(0.1)}
+            style={{
+              marginBottom: 24,
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: '0.18em',
+              color: 'var(--text-secondary)',
+              textTransform: 'uppercase',
+            }}
           >
-            âœ¦ Powered by MediaPipe Face Mesh
-          </motion.div>
+            Hands-Free Media Control
+          </motion.p>
 
-          {/* Main tagline */}
+          {/* Main headline */}
           <motion.h1
-            className="text-6xl md:text-8xl font-extrabold leading-tight mb-6 text-glow-purple"
-            style={{ fontFamily: 'Outfit, sans-serif', color: '#F8FAFC' }}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.7 }}
+            {...fadeUp(0.22)}
+            style={{
+              fontFamily: 'Outfit, sans-serif',
+              fontSize: 'clamp(48px, 8vw, 76px)',
+              fontWeight: 800,
+              lineHeight: 1.08,
+              letterSpacing: '-0.02em',
+              color: 'var(--text-primary)',
+              marginBottom: 28,
+            }}
           >
-            Your Face Is{' '}
-            <span style={{ color: '#A78BFA' }}>the Remote</span>
+            Your{' '}
+            <span
+              style={{
+                background: 'linear-gradient(120deg, #c4b5fd 0%, #f8fafc 60%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              Face
+            </span>
+            {' '}Is the Remote
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p
-            className="text-xl md:text-2xl mb-10"
-            style={{ color: '#94A3B8', fontFamily: 'DM Sans, sans-serif' }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.65 }}
+            {...fadeUp(0.34)}
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 18,
+              lineHeight: 1.65,
+              color: 'var(--text-secondary)',
+              maxWidth: 500,
+              marginBottom: 44,
+            }}
           >
+            Control YouTube, Spotify, and presentations with facial gestures.
             No hands. No keyboard. No mouse.
           </motion.p>
 
-          {/* CTA Button */}
-          <motion.button
-            onClick={() => navigate('/play')}
-            className="relative px-10 py-4 text-lg font-semibold rounded-xl text-white overflow-hidden glow-purple"
-            style={{
-              background: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
-              fontFamily: 'Outfit, sans-serif',
-            }}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.8 }}
-            whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(124,58,237,0.6)' }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Get Started
-            <span className="ml-2">â†’</span>
-          </motion.button>
+          {/* CTA */}
+          <motion.div {...fadeUp(0.46)}>
+            <motion.button
+              onClick={() => navigate('/play')}
+              whileHover={{ scale: 1.04, boxShadow: '0 0 48px rgba(124,58,237,0.55)' }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                display:      'inline-flex',
+                alignItems:   'center',
+                gap:          8,
+                padding:      '16px 52px',
+                borderRadius: 9999,
+                border:       'none',
+                background:   'var(--accent-purple)',
+                color:        '#F8FAFC',
+                fontFamily:   'Outfit, sans-serif',
+                fontSize:     16,
+                fontWeight:   700,
+                cursor:       'pointer',
+                letterSpacing:'0.01em',
+                boxShadow:    '0 0 32px rgba(124,58,237,0.35)',
+                transition:   'box-shadow 0.2s ease',
+              }}
+            >
+              Get Started
+              <span style={{ fontSize: 18 }}>→</span>
+            </motion.button>
 
-          {/* Scroll hint */}
-          <motion.p
-            className="mt-8 text-sm"
-            style={{ color: '#4B5563' }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-          >
-            Scroll to see features â†“
-          </motion.p>
+            <p style={{ marginTop: 16, fontSize: 13, color: '#374151', fontFamily: 'DM Sans, sans-serif' }}>
+              No download required. Works entirely in your browser.
+            </p>
+          </motion.div>
         </div>
+
+        {/* Scroll hint */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 0.8 }}
+          style={{
+            position: 'absolute', bottom: 36,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+          }}
+        >
+          <span style={{ color: '#374151', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: 'DM Sans, sans-serif' }}>
+            Scroll
+          </span>
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ width: 1, height: 28, background: 'linear-gradient(to bottom, #374151, transparent)' }}
+          />
+        </motion.div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-5xl mx-auto">
-          <motion.h2
-            className="text-4xl font-bold text-center mb-4"
-            style={{ fontFamily: 'Outfit, sans-serif', color: '#F8FAFC' }}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            Control Everything
-          </motion.h2>
+      {/* ── FEATURES ─────────────────────────────────────────────────────── */}
+      <section style={{ padding: '100px 24px' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto' }}>
           <motion.p
-            className="text-center mb-16"
-            style={{ color: '#94A3B8' }}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              textAlign: 'center',
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: '0.18em',
+              color: 'var(--text-secondary)',
+              textTransform: 'uppercase',
+              marginBottom: 16,
+            }}
           >
-            One gesture system. Three platforms.
+            What You Can Control
           </motion.p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.08 }}
+            style={{
+              textAlign: 'center',
+              fontFamily: 'Outfit, sans-serif',
+              fontSize: 'clamp(32px, 4vw, 44px)',
+              fontWeight: 800,
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.02em',
+              marginBottom: 64,
+            }}
+          >
+            One System. Three Platforms.
+          </motion.h2>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
             {features.map((f, i) => (
               <motion.div
                 key={f.title}
-                className="rounded-2xl p-8"
-                style={{ background: '#12121A', border: '1px solid rgba(255,255,255,0.06)' }}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 28 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                whileHover={{ borderColor: `${f.color}60`, boxShadow: `0 0 30px ${f.color}20` }}
+                transition={{ duration: 0.5, delay: i * 0.12 }}
+                whileHover={{
+                  y: -4,
+                  borderColor: `${f.color}70`,
+                  boxShadow: `0 8px 40px ${f.color}18`,
+                  transition: { duration: 0.2 },
+                }}
+                style={{
+                  borderRadius: 18,
+                  padding:      '36px 32px',
+                  background:   'var(--bg-surface)',
+                  border:       '1px solid rgba(255,255,255,0.06)',
+                  cursor:       'default',
+                  transition:   'border-color 0.2s, box-shadow 0.2s, transform 0.2s',
+                }}
               >
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-5"
-                  style={{ background: `${f.color}20`, color: f.color }}
-                >
+                <div style={{
+                  width: 48, height: 48,
+                  borderRadius: 14,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 22,
+                  background: `${f.color}18`,
+                  color: f.color,
+                  marginBottom: 20,
+                }}>
                   {f.icon}
                 </div>
-                <h3 className="text-xl font-semibold mb-3" style={{ fontFamily: 'Outfit, sans-serif', color: '#F8FAFC' }}>
+                <h3 style={{
+                  fontFamily: 'Outfit, sans-serif',
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  marginBottom: 10,
+                }}>
                   {f.title}
                 </h3>
-                <p style={{ color: '#94A3B8', lineHeight: 1.6 }}>{f.desc}</p>
+                <p style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 14,
+                  lineHeight: 1.65,
+                  color: 'var(--text-secondary)',
+                }}>
+                  {f.desc}
+                </p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Gesture map teaser */}
-      <section className="py-20 px-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.h2
-            className="text-3xl font-bold mb-8"
-            style={{ fontFamily: 'Outfit, sans-serif', color: '#F8FAFC' }}
+      {/* ── GESTURE REFERENCE STRIP ──────────────────────────────────────── */}
+      <section
+        style={{
+          padding: '72px 24px',
+          borderTop: '1px solid rgba(255,255,255,0.05)',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+        }}
+      >
+        <div style={{ maxWidth: 960, margin: '0 auto' }}>
+          <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            style={{
+              textAlign: 'center',
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: '0.18em',
+              color: 'var(--text-secondary)',
+              textTransform: 'uppercase',
+              marginBottom: 12,
+            }}
           >
-            Intuitive Gestures
+            Gesture Reference
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.08 }}
+            style={{
+              textAlign: 'center',
+              fontFamily: 'Outfit, sans-serif',
+              fontSize: 'clamp(26px, 3vw, 36px)',
+              fontWeight: 800,
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.02em',
+              marginBottom: 48,
+            }}
+          >
+            Intuitive by Design
           </motion.h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { gesture: 'Nod Up', command: 'Volume Up', icon: 'â†‘' },
-              { gesture: 'Nod Down', command: 'Volume Down', icon: 'â†“' },
-              { gesture: 'Turn Left', command: 'Previous', icon: 'â†' },
-              { gesture: 'Turn Right', command: 'Next / Skip', icon: 'â†’' },
-              { gesture: 'Both Eyes Closed', command: 'Play / Pause', icon: 'â—' },
-              { gesture: 'Mouth Open', command: 'Mute', icon: 'â—‹' },
-              { gesture: 'Tilt Left', command: 'Rewind 10s', icon: 'â†º' },
-              { gesture: 'Tilt Right', command: 'Skip 10s', icon: 'â†»' },
-            ].map((item, i) => (
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 12 }}>
+            {gestures.map((g, i) => (
               <motion.div
-                key={item.gesture}
-                className="rounded-xl p-4 text-center"
-                style={{ background: '#12121A', border: '1px solid rgba(255,255,255,0.06)' }}
-                initial={{ opacity: 0, scale: 0.9 }}
+                key={g.gesture}
+                initial={{ opacity: 0, scale: 0.92 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '14px 18px',
+                  borderRadius: 12,
+                  background: 'rgba(26,26,46,0.4)',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                }}
               >
-                <div className="text-2xl mb-2" style={{ color: '#A78BFA' }}>{item.icon}</div>
-                <div className="text-xs font-semibold mb-1" style={{ color: '#F8FAFC', fontFamily: 'Outfit, sans-serif' }}>{item.gesture}</div>
-                <div className="text-xs" style={{ color: '#94A3B8' }}>{item.command}</div>
+                <span style={{
+                  flexShrink: 0,
+                  width: 32, height: 32,
+                  borderRadius: 8,
+                  background: 'rgba(124,58,237,0.15)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 16,
+                  color: '#A78BFA',
+                  fontFamily: 'monospace',
+                }}>
+                  {g.icon}
+                </span>
+                <div>
+                  <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 12, fontWeight: 600, color: '#F8FAFC', marginBottom: 2 }}>
+                    {g.gesture}
+                  </div>
+                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: 'var(--text-secondary)' }}>
+                    {g.command}
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-6 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', color: '#4B5563', fontSize: '0.875rem' }}>
-        <p>Nodex â€” Built with MediaPipe &amp; React. Runs entirely in your browser.</p>
+      {/* ── FOOTER ───────────────────────────────────────────────────────── */}
+      <footer
+        style={{
+          padding: '40px 24px',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 6,
+        }}
+      >
+        <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#374151' }}>
+          Built for Rhodes College Hackathon 2026
+        </p>
+        <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#1F2937' }}>
+          Powered by MediaPipe &nbsp;&middot;&nbsp; Runs entirely in your browser
+        </p>
       </footer>
     </motion.div>
   )
 }
-

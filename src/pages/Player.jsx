@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { useFaceDetection } from '../hooks/useFaceDetection.js'
-import { useGestures }      from '../hooks/useGestures.js'
-import { useGesture }       from '../context/GestureContext.jsx'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useFaceDetection }   from '../hooks/useFaceDetection.js'
+import { useGestures }        from '../hooks/useGestures.js'
+import { useGesture }         from '../context/GestureContext.jsx'
 import { DEFAULT_THRESHOLDS } from '../utils/thresholds.js'
 import { COMMANDS }  from '../constants/commands.js'
 import { GESTURES }  from '../constants/gestures.js'
@@ -16,8 +16,8 @@ import CommandToast  from '../components/CommandToast.jsx'
 
 const pageVariants = {
   initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { duration: 0.4 } },
-  exit:    { opacity: 0, transition: { duration: 0.25 } },
+  animate: { opacity: 1, transition: { duration: 0.35 } },
+  exit:    { opacity: 0, transition: { duration: 0.2 } },
 }
 
 const T = DEFAULT_THRESHOLDS
@@ -63,12 +63,10 @@ export default function Player() {
 
   const [mode, setMode] = useState('youtube')
 
-  // FPS counter
+  // ── FPS counter ─────────────────────────────────────────────────────────────
   const frameCountRef = useRef(0)
   const [fps, setFps] = useState(0)
-  useEffect(() => {
-    if (landmarks) frameCountRef.current++
-  }, [landmarks])
+  useEffect(() => { if (landmarks) frameCountRef.current++ }, [landmarks])
   useEffect(() => {
     const id = setInterval(() => {
       setFps(frameCountRef.current)
@@ -77,15 +75,14 @@ export default function Player() {
     return () => clearInterval(id)
   }, [])
 
-  // Command log (last 10, newest first)
+  // ── Command log ──────────────────────────────────────────────────────────────
   const [commandLog, setCommandLog] = useState([])
   useEffect(() => {
     if (!lastCommandTime || lastCommand === COMMANDS.NONE) return
-    const entry = { command: lastCommand, time: lastCommandTime }
-    setCommandLog(prev => [entry, ...prev].slice(0, 10))
+    setCommandLog(prev => [{ command: lastCommand, time: lastCommandTime }, ...prev].slice(0, 10))
   }, [lastCommandTime])
 
-  // Gesture flash (green highlight for 800ms on command fire)
+  // ── Gesture flash (green highlight for 800ms) ────────────────────────────────
   const [gestureFlash, setGestureFlash] = useState(false)
   useEffect(() => {
     if (!lastCommandTime) return
@@ -93,6 +90,9 @@ export default function Player() {
     const id = setTimeout(() => setGestureFlash(false), 800)
     return () => clearTimeout(id)
   }, [lastCommandTime])
+
+  // ── Debug panel open/close ───────────────────────────────────────────────────
+  const [debugOpen, setDebugOpen] = useState(true)
 
   const { yaw = 0, pitch = 0, roll = 0, ear = 0, mouth = 0 } = metrics ?? {}
 
@@ -104,173 +104,266 @@ export default function Player() {
       animate="animate"
       exit="exit"
     >
+      {/* ── STICKY HEADER ────────────────────────────────────────────────── */}
       <header
-        className="flex items-center justify-between px-6 py-4"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#12121A' }}
+        style={{
+          position:           'sticky',
+          top:                0,
+          zIndex:             60,
+          display:            'flex',
+          alignItems:         'center',
+          justifyContent:     'space-between',
+          padding:            '0 24px',
+          height:             56,
+          borderBottom:       '1px solid rgba(255,255,255,0.06)',
+          background:         'rgba(10,10,15,0.82)',
+          backdropFilter:     'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
       >
-        <h1
-          className="text-xl font-bold"
-          style={{ fontFamily: 'Outfit, sans-serif', color: '#A78BFA' }}
-        >
-          Nodex
-        </h1>
-        <div className="flex items-center gap-3">
-          {/* FPS chip */}
-          <span
-            className="text-xs px-2.5 py-1 rounded-lg font-mono"
-            style={{
-              background: '#1A1A2E',
-              color: fps > 20 ? '#22C55E' : fps > 10 ? '#F59E0B' : '#94A3B8',
-              border: '1px solid rgba(255,255,255,0.06)',
-            }}
-          >
-            {fps}&nbsp;fps
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: 18, color: '#F8FAFC', letterSpacing: '-0.01em' }}>
+            Nodex
           </span>
+          <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent-purple)', marginBottom: 6, flexShrink: 0 }} />
+        </div>
 
-          {/* Active gesture indicator */}
-          <span
-            className="text-xs px-2.5 py-1 rounded-lg"
-            style={{
-              background: gestureFlash
-                ? 'rgba(34,197,94,0.2)'
-                : currentGesture !== GESTURES.NONE
-                ? 'rgba(167,139,250,0.15)'
-                : '#1A1A2E',
-              color: gestureFlash
-                ? '#22C55E'
-                : currentGesture !== GESTURES.NONE
-                ? '#A78BFA'
-                : '#4B5563',
-              border: gestureFlash
-                ? '1px solid rgba(34,197,94,0.4)'
-                : currentGesture !== GESTURES.NONE
-                ? '1px solid rgba(167,139,250,0.3)'
-                : '1px solid rgba(255,255,255,0.06)',
-              transition: 'all 0.15s ease',
-              minWidth: 80,
-              textAlign: 'center',
-            }}
+        {/* Status chips */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* FPS */}
+          <Chip mono color={fps > 20 ? '#22C55E' : fps > 10 ? '#F59E0B' : '#4B5563'}>
+            {fps} fps
+          </Chip>
+
+          {/* Gesture indicator */}
+          <Chip
+            color={gestureFlash ? '#22C55E' : currentGesture !== GESTURES.NONE ? '#A78BFA' : '#374151'}
+            bg={gestureFlash ? 'rgba(34,197,94,0.12)' : currentGesture !== GESTURES.NONE ? 'rgba(167,139,250,0.1)' : 'transparent'}
+            border={gestureFlash ? 'rgba(34,197,94,0.35)' : currentGesture !== GESTURES.NONE ? 'rgba(167,139,250,0.25)' : 'rgba(255,255,255,0.06)'}
+            style={{ minWidth: 90, textAlign: 'center', transition: 'all 0.15s ease' }}
           >
-            {currentGesture !== GESTURES.NONE
-              ? (GESTURE_LABELS[currentGesture] ?? currentGesture)
-              : 'No gesture'}
-          </span>
+            {currentGesture !== GESTURES.NONE ? (GESTURE_LABELS[currentGesture] ?? currentGesture) : 'No gesture'}
+          </Chip>
 
-          {/* Tracking chip */}
-          <span
-            className="text-xs px-2.5 py-1 rounded-lg"
-            style={{
-              background: isTracking ? 'rgba(6,182,212,0.15)' : '#1A1A2E',
-              color:      isTracking ? '#06B6D4' : '#4B5563',
-              border:     isTracking
-                ? '1px solid rgba(6,182,212,0.3)'
-                : '1px solid rgba(255,255,255,0.06)',
-            }}
+          {/* Tracking */}
+          <Chip
+            color={isTracking ? '#06B6D4' : '#374151'}
+            bg={isTracking ? 'rgba(6,182,212,0.1)' : 'transparent'}
+            border={isTracking ? 'rgba(6,182,212,0.25)' : 'rgba(255,255,255,0.06)'}
           >
             {isTracking ? '\u25cf Tracking' : '\u25cb No face'}
-          </span>
+          </Chip>
         </div>
       </header>
 
-      <div className="px-6 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      {/* ── MODE SELECTOR ────────────────────────────────────────────────── */}
+      <div
+        style={{
+          padding:      '12px 24px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          background:   'rgba(10,10,15,0.6)',
+        }}
+      >
         <ModeSelector mode={mode} onChange={setMode} />
       </div>
 
-      <div className="flex-1 relative p-6 pb-32">
+      {/* ── MAIN CONTENT ─────────────────────────────────────────────────── */}
+      <div style={{ flex: 1, padding: '24px 24px 160px' }}>
         {mode === 'youtube' && (
-          <YouTubePlayer command={currentCommand} commandTime={lastCommandTime} />
+          <div style={{ position: 'relative' }}>
+            {/* Command glow ring — briefly illuminates on gesture fire */}
+            <AnimatePresence>
+              {gestureFlash && (
+                <motion.div
+                  key={lastCommandTime}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  style={{
+                    position:     'absolute',
+                    inset:        -3,
+                    borderRadius: 16,
+                    pointerEvents:'none',
+                    zIndex:       1,
+                    boxShadow:    '0 0 0 1px rgba(124,58,237,0.5), 0 0 40px rgba(124,58,237,0.2)',
+                  }}
+                />
+              )}
+            </AnimatePresence>
+            <div style={{
+              position:     'relative',
+              borderRadius: 14,
+              overflow:     'hidden',
+              border:       '1px solid rgba(255,255,255,0.07)',
+            }}>
+              <YouTubePlayer command={currentCommand} commandTime={lastCommandTime} />
+            </div>
+          </div>
         )}
         {mode === 'spotify' && <SpotifyPlayer />}
         {mode === 'slides'  && <SlideViewer />}
       </div>
 
-      {/* Debug panel — bottom-left */}
-      <div
-        style={{
-          position:       'fixed',
-          bottom:         24,
-          left:           24,
-          width:          220,
-          borderRadius:   10,
-          background:     'rgba(26,26,46,0.92)',
-          border:         '1px solid rgba(255,255,255,0.07)',
-          backdropFilter: 'blur(12px)',
-          padding:        '10px 14px',
-          zIndex:         50,
-        }}
-      >
-        {/* Face Metrics */}
-        <p
-          className="text-xs font-semibold mb-2"
-          style={{ color: '#64748B', letterSpacing: '0.08em', fontFamily: 'Outfit, sans-serif' }}
-        >
-          FACE METRICS
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontFamily: 'monospace' }}>
-          <MetricRow label="Yaw"   value={yaw.toFixed(1) + '\u00b0'}   color={metricColor(yaw,   T.yaw   * 0.7, T.yaw)} />
-          <MetricRow label="Pitch" value={pitch.toFixed(1) + '\u00b0'} color={metricColor(pitch, T.pitch * 0.7, T.pitch)} />
-          <MetricRow label="Roll"  value={roll.toFixed(1) + '\u00b0'}  color={metricColor(roll,  T.roll  * 0.7, T.roll)} />
-          <MetricRow label="EAR"   value={ear.toFixed(3)}   color={metricColor(ear,   0.22, T.earClose, true)} />
-          <MetricRow label="Mouth" value={mouth.toFixed(3)} color={metricColor(mouth, T.mouthOpen * 0.7, T.mouthOpen)} />
-          <MetricRow label="Conf"  value={(confidence * 100).toFixed(0) + '%'}
-            color={confidence > 0.7 ? '#22C55E' : confidence > 0.4 ? '#F59E0B' : '#4B5563'} />
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 4, paddingTop: 6 }}>
-            <MetricRow label="Track" value={isTracking ? 'YES' : 'NO'} color={isTracking ? '#22C55E' : '#4B5563'} />
-          </div>
-        </div>
-
-        {/* Command Log */}
-        <p
-          className="text-xs font-semibold mt-4 mb-2"
-          style={{ color: '#64748B', letterSpacing: '0.08em', fontFamily: 'Outfit, sans-serif' }}
-        >
-          COMMAND LOG
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, fontFamily: 'monospace' }}>
-          {commandLog.length === 0 ? (
-            <span style={{ color: '#374151', fontSize: 11 }}>no commands yet</span>
-          ) : (
-            commandLog.map((entry, i) => (
-              <div
-                key={entry.time}
+      {/* ── DEBUG PANEL — bottom-left ─────────────────────────────────────── */}
+      <AnimatePresence mode="wait">
+        {debugOpen ? (
+          <motion.div
+            key="debug-open"
+            initial={{ opacity: 0, y: 8, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0,  scale: 1    }}
+            exit={{    opacity: 0, y: 8,  scale: 0.97 }}
+            transition={{ duration: 0.18 }}
+            style={{
+              position:       'fixed',
+              bottom:         24,
+              left:           24,
+              width:          216,
+              borderRadius:   12,
+              background:     'rgba(12,12,20,0.94)',
+              border:         '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              padding:        '10px 14px 12px',
+              zIndex:         50,
+              boxShadow:      '0 8px 32px rgba(0,0,0,0.5)',
+            }}
+          >
+            {/* Panel header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', color: '#374151', textTransform: 'uppercase' }}>
+                Debug
+              </span>
+              <button
+                onClick={() => setDebugOpen(false)}
                 style={{
-                  display:        'flex',
-                  justifyContent: 'space-between',
-                  alignItems:     'center',
-                  opacity:        1 - i * 0.08,
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                  color: '#374151', fontSize: 14, lineHeight: 1, padding: '0 2px',
+                  display: 'flex', alignItems: 'center',
                 }}
+                title="Collapse"
               >
-                <span style={{ color: i === 0 ? '#A78BFA' : '#94A3B8', fontSize: 11 }}>
-                  {entry.command}
-                </span>
-                <span style={{ color: '#374151', fontSize: 10 }}>
-                  {new Date(entry.time).toLocaleTimeString([], {
-                    hour12: false,
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                  })}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+                &#x2212;
+              </button>
+            </div>
 
+            {/* Face Metrics */}
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', color: '#4B5563', textTransform: 'uppercase', marginBottom: 6 }}>
+              Face Metrics
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontFamily: 'monospace' }}>
+              <MetricRow label="Yaw"   value={yaw.toFixed(1) + '\u00b0'}   color={metricColor(yaw,   T.yaw   * 0.7, T.yaw)} />
+              <MetricRow label="Pitch" value={pitch.toFixed(1) + '\u00b0'} color={metricColor(pitch, T.pitch * 0.7, T.pitch)} />
+              <MetricRow label="Roll"  value={roll.toFixed(1) + '\u00b0'}  color={metricColor(roll,  T.roll  * 0.7, T.roll)} />
+              <MetricRow label="EAR"   value={ear.toFixed(3)}   color={metricColor(ear,   0.22, T.earClose, true)} />
+              <MetricRow label="Mouth" value={mouth.toFixed(3)} color={metricColor(mouth, T.mouthOpen * 0.7, T.mouthOpen)} />
+              <MetricRow label="Conf"  value={(confidence * 100).toFixed(0) + '%'}
+                color={confidence > 0.7 ? '#22C55E' : confidence > 0.4 ? '#F59E0B' : '#374151'} />
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: 3, paddingTop: 5 }}>
+                <MetricRow label="Track" value={isTracking ? 'YES' : 'NO'} color={isTracking ? '#22C55E' : '#374151'} />
+              </div>
+            </div>
+
+            {/* Command Log */}
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', color: '#4B5563', textTransform: 'uppercase', marginTop: 12, marginBottom: 6 }}>
+              Command Log
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {commandLog.length === 0 ? (
+                <span style={{ fontFamily: 'DM Sans, sans-serif', color: '#1F2937', fontSize: 11 }}>
+                  No commands yet
+                </span>
+              ) : commandLog.map((entry, i) => (
+                <div
+                  key={entry.time}
+                  style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    opacity: Math.max(0.25, 1 - i * 0.09),
+                  }}
+                >
+                  <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 11, fontWeight: 600, color: i === 0 ? '#A78BFA' : '#64748B' }}>
+                    {entry.command}
+                  </span>
+                  <span style={{ fontFamily: 'monospace', color: '#1F2937', fontSize: 10 }}>
+                    {new Date(entry.time).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.button
+            key="debug-collapsed"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1  }}
+            exit={{    opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.15 }}
+            onClick={() => setDebugOpen(true)}
+            title="Open debug panel"
+            style={{
+              position:       'fixed',
+              bottom:         24,
+              left:           24,
+              width:          38,
+              height:         38,
+              borderRadius:   10,
+              background:     'rgba(12,12,20,0.9)',
+              border:         '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              cursor:         'pointer',
+              fontSize:       17,
+              display:        'flex',
+              alignItems:     'center',
+              justifyContent: 'center',
+              zIndex:         50,
+              boxShadow:      '0 4px 16px rgba(0,0,0,0.4)',
+            }}
+          >
+            &#x1F4CA;
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* ── CAMERA PiP ───────────────────────────────────────────────────── */}
       <Camera videoRef={videoRef} isLoading={isLoading} isTracking={isTracking} error={error}>
         <GestureHUD landmarks={landmarks} />
       </Camera>
 
+      {/* ── COMMAND TOAST ────────────────────────────────────────────────── */}
       <CommandToast command={currentCommand} commandTime={lastCommandTime} />
     </motion.div>
+  )
+}
+
+// ─── sub-components ───────────────────────────────────────────────────────────
+function Chip({ children, color, bg, border, mono, style: extraStyle }) {
+  return (
+    <span style={{
+      display:    'inline-flex',
+      alignItems: 'center',
+      padding:    '4px 10px',
+      borderRadius: 8,
+      fontSize:   11,
+      fontWeight: 600,
+      fontFamily: mono ? 'monospace' : 'DM Sans, sans-serif',
+      color:      color ?? '#94A3B8',
+      background: bg ?? 'rgba(255,255,255,0.04)',
+      border:     `1px solid ${border ?? 'rgba(255,255,255,0.06)'}`,
+      whiteSpace: 'nowrap',
+      ...extraStyle,
+    }}>
+      {children}
+    </span>
   )
 }
 
 function MetricRow({ label, value, color }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <span style={{ color: '#64748B', fontSize: 11 }}>{label}</span>
-      <span style={{ color, fontSize: 11, fontWeight: 600 }}>{value}</span>
+      <span style={{ color: '#4B5563', fontSize: 11 }}>{label}</span>
+      <span style={{ color, fontSize: 11, fontWeight: 700 }}>{value}</span>
     </div>
   )
 }

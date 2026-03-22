@@ -5,21 +5,23 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: #0A0A0F;
-  --bg-surface: #12121A;
-  --bg-elevated: #1A1A2E;
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --accent-purple: #7C3AED;
-  --accent-purple-light: #A78BFA;
-  --accent-teal: #06B6D4;
-  --accent-green: #22C55E;
-  --accent-red: #EF4444;
-  --accent-amber: #F59E0B;
+  --bg-primary:         #0A0A0F;
+  --bg-surface:         #12121A;
+  --bg-elevated:        #1A1A2E;
+  --text-primary:       #F8FAFC;
+  --text-secondary:     #94A3B8;
+  --accent-purple:      #7C3AED;
+  --accent-purple-light:#A78BFA;
+  --accent-teal:        #06B6D4;
+  --accent-green:       #22C55E;
+  --accent-red:         #EF4444;
+  --accent-amber:       #F59E0B;
 }
 
-* {
-  box-sizing: border-box;
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
 }
 
 html, body {
@@ -32,51 +34,78 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Prevent white flash on route change */
+#root {
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Outfit', sans-serif;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-surface);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--accent-purple);
-  border-radius: 3px;
+/* Text selection */
+::selection {
+  background: rgba(124, 58, 237, 0.3);
+  color: white;
 }
 
-/* Glow utilities */
+/* Thin purple scrollbar */
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.45);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent-purple); }
+
+/* Grain texture — very subtle, adds depth */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* Glow helpers */
 .glow-purple {
-  box-shadow: 0 0 20px #7C3AED40, 0 0 40px #7C3AED20;
+  box-shadow: 0 0 24px rgba(124,58,237,0.35), 0 0 48px rgba(124,58,237,0.15);
 }
 .glow-teal {
-  box-shadow: 0 0 20px #06B6D440, 0 0 40px #06B6D420;
+  box-shadow: 0 0 20px rgba(6,182,212,0.35), 0 0 40px rgba(6,182,212,0.15);
 }
 .text-glow-purple {
-  text-shadow: 0 0 20px #A78BFA80;
+  text-shadow: 0 0 40px rgba(167,139,250,0.55);
 }
 
-/* Face mesh animation */
+/* Gradient text — apply via className="gradient-text" */
+.gradient-text {
+  background: linear-gradient(120deg, #c4b5fd 0%, #f8fafc 55%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Face mesh animations */
 @keyframes landmark-pulse {
   0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.3); }
+  50%       { opacity: 1;   transform: scale(1.3); }
 }
 @keyframes mesh-draw {
   from { stroke-dashoffset: 1000; }
-  to { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: 0; }
 }
-.landmark-dot {
-  animation: landmark-pulse 2s ease-in-out infinite;
-}
+.landmark-dot { animation: landmark-pulse 2s ease-in-out infinite; }
 .mesh-path {
   stroke-dasharray: 1000;
   animation: mesh-draw 2s ease-out forwards;
 }
 
-/* Page transition wrapper */
+/* Page wrapper */
 .page-wrapper {
   min-height: 100vh;
   background-color: var(--bg-primary);

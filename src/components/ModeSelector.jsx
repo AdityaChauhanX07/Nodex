@@ -1,34 +1,62 @@
 import { motion } from 'framer-motion'
 
 const modes = [
-  { id: 'youtube', label: 'YouTube', icon: '▶', color: '#EF4444' },
-  { id: 'spotify', label: 'Spotify', icon: '♫', color: '#22C55E' },
-  { id: 'slides', label: 'Slides', icon: '⬜', color: '#06B6D4' },
+  { id: 'youtube', label: 'YouTube', icon: '▶' },
+  { id: 'spotify', label: 'Spotify', icon: '♫' },
+  { id: 'slides',  label: 'Slides',  icon: '⬛' },
 ]
 
 export default function ModeSelector({ mode, onChange }) {
   return (
-    <div className="flex gap-2">
+    <div
+      style={{
+        display:      'inline-flex',
+        background:   '#0A0A0F',
+        border:       '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 12,
+        padding:      4,
+        gap:          2,
+      }}
+    >
       {modes.map(m => (
         <button
           key={m.id}
           onClick={() => onChange(m.id)}
-          className="relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
           style={{
-            background: mode === m.id ? `${m.color}20` : 'transparent',
-            border: mode === m.id ? `1px solid ${m.color}60` : '1px solid rgba(255,255,255,0.06)',
-            color: mode === m.id ? m.color : '#64748B',
+            position:   'relative',
+            display:    'flex',
+            alignItems: 'center',
+            gap:        6,
+            padding:    '7px 22px',
+            borderRadius: 8,
+            border:     'none',
+            background: 'transparent',
+            cursor:     'pointer',
+            fontFamily: 'Outfit, sans-serif',
+            fontSize:   13,
+            fontWeight: 600,
+            color:      mode === m.id ? '#F8FAFC' : '#4B5563',
+            transition: 'color 0.2s ease',
+            zIndex:     1,
+            userSelect: 'none',
+            whiteSpace: 'nowrap',
           }}
         >
-          <span>{m.icon}</span>
-          <span style={{ fontFamily: 'Outfit, sans-serif' }}>{m.label}</span>
           {mode === m.id && (
             <motion.div
-              className="absolute inset-0 rounded-xl"
-              style={{ background: `${m.color}08` }}
-              layoutId="mode-indicator"
+              layoutId="tab-bg"
+              style={{
+                position:     'absolute',
+                inset:        0,
+                borderRadius: 8,
+                background:   'var(--accent-purple)',
+                zIndex:       -1,
+              }}
+              transition={{ type: 'spring', duration: 0.35, bounce: 0.1 }}
             />
           )}
+          <span style={{ fontSize: 11 }}>{m.icon}</span>
+          <span>{m.label}</span>
         </button>
       ))}
     </div>
