@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+﻿import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import FaceMeshSVG from '../components/FaceMeshSVG.jsx'
 
@@ -10,19 +10,19 @@ const pageVariants = {
 
 const features = [
   {
-    icon: '▶',
+    icon: 'â–¶',
     title: 'YouTube Control',
     desc: 'Play, pause, skip, and adjust volume with head nods and eye blinks.',
     color: '#EF4444',
   },
   {
-    icon: '♫',
+    icon: 'â™«',
     title: 'Spotify Playback',
     desc: 'Control your music queue hands-free. Next track, volume, and more.',
     color: '#22C55E',
   },
   {
-    icon: '⬜',
+    icon: 'â¬œ',
     title: 'Presentations',
     desc: 'Navigate PDF slides with subtle head gestures. Perfect for demos.',
     color: '#06B6D4',
@@ -79,7 +79,7 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            ✦ Powered by MediaPipe Face Mesh
+            âœ¦ Powered by MediaPipe Face Mesh
           </motion.div>
 
           {/* Main tagline */}
@@ -107,7 +107,7 @@ export default function Landing() {
 
           {/* CTA Button */}
           <motion.button
-            onClick={() => navigate('/calibrate')}
+            onClick={() => navigate('/play')}
             className="relative px-10 py-4 text-lg font-semibold rounded-xl text-white overflow-hidden glow-purple"
             style={{
               background: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
@@ -120,7 +120,7 @@ export default function Landing() {
             whileTap={{ scale: 0.97 }}
           >
             Get Started
-            <span className="ml-2">→</span>
+            <span className="ml-2">â†’</span>
           </motion.button>
 
           {/* Scroll hint */}
@@ -131,7 +131,7 @@ export default function Landing() {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
           >
-            Scroll to see features ↓
+            Scroll to see features â†“
           </motion.p>
         </div>
       </section>
@@ -201,14 +201,14 @@ export default function Landing() {
           </motion.h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { gesture: 'Nod Up', command: 'Volume Up', icon: '↑' },
-              { gesture: 'Nod Down', command: 'Volume Down', icon: '↓' },
-              { gesture: 'Turn Left', command: 'Previous', icon: '←' },
-              { gesture: 'Turn Right', command: 'Next / Skip', icon: '→' },
-              { gesture: 'Both Eyes Closed', command: 'Play / Pause', icon: '●' },
-              { gesture: 'Mouth Open', command: 'Mute', icon: '○' },
-              { gesture: 'Tilt Left', command: 'Rewind 10s', icon: '↺' },
-              { gesture: 'Tilt Right', command: 'Skip 10s', icon: '↻' },
+              { gesture: 'Nod Up', command: 'Volume Up', icon: 'â†‘' },
+              { gesture: 'Nod Down', command: 'Volume Down', icon: 'â†“' },
+              { gesture: 'Turn Left', command: 'Previous', icon: 'â†' },
+              { gesture: 'Turn Right', command: 'Next / Skip', icon: 'â†’' },
+              { gesture: 'Both Eyes Closed', command: 'Play / Pause', icon: 'â—' },
+              { gesture: 'Mouth Open', command: 'Mute', icon: 'â—‹' },
+              { gesture: 'Tilt Left', command: 'Rewind 10s', icon: 'â†º' },
+              { gesture: 'Tilt Right', command: 'Skip 10s', icon: 'â†»' },
             ].map((item, i) => (
               <motion.div
                 key={item.gesture}
@@ -230,8 +230,9 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="py-8 px-6 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', color: '#4B5563', fontSize: '0.875rem' }}>
-        <p>Nodex — Built with MediaPipe &amp; React. Runs entirely in your browser.</p>
+        <p>Nodex â€” Built with MediaPipe &amp; React. Runs entirely in your browser.</p>
       </footer>
     </motion.div>
   )
 }
+
