@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+// @mediapipe packages are loaded via <script> tags in index.html and exposed
+// as window globals — this avoids all ESM/CJS bundler interop issues.
 
 /**
  * useFaceDetection
@@ -36,18 +38,28 @@ export function useFaceDetection({ videoRef, enabled = true } = {}) {
 
     async function init() {
       try {
-        // Lazy-import both modules together so Vite doesn't bundle WASM files
-        const [{ FaceMesh }, { Camera }] = await Promise.all([
-          import('@mediapipe/face_mesh'),
-          import('@mediapipe/camera_utils'),
-        ])
-
         if (!activeRef.current) return
 
+        // Prefer window globals set by the CDN <script> tags.
+        // Fall back to dynamic import for environments where globals aren't set.
+        let FaceMesh = window.FaceMesh
+        let Camera   = window.Camera
+
+        if (typeof FaceMesh !== 'function' || typeof Camera !== 'function') {
+          const [fmMod, camMod] = await Promise.all([
+            import('@mediapipe/face_mesh'),
+            import('@mediapipe/camera_utils'),
+          ])
+          FaceMesh = fmMod.FaceMesh  ?? fmMod.default?.FaceMesh  ?? fmMod.default
+          Camera   = camMod.Camera   ?? camMod.default?.Camera   ?? camMod.default
+        }
+
+        if (typeof FaceMesh !== 'function') throw new Error('FaceMesh constructor not found')
+        if (typeof Camera   !== 'function') throw new Error('Camera constructor not found')
+
         const faceMesh = new FaceMesh({
-          // Pin to the exact package version to avoid CDN version drift
           locateFile: (file) =>
-            `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`,
+            `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
         })
 
         faceMesh.setOptions({

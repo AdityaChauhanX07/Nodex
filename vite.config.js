@@ -24,4 +24,9 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@mediapipe/face_mesh', '@mediapipe/camera_utils'],
   },
+  build: {
+    rollupOptions: {
+      external: ['@mediapipe/face_mesh', '@mediapipe/camera_utils'],
+    },
+  },
 })

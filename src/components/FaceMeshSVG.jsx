@@ -120,15 +120,13 @@ export default function FaceMeshSVG() {
           />
         ))}
 
-        {/* Scanning line */}
-        <motion.line
-          x1="40"
-          y1="0"
-          x2="200"
-          y2="0"
-          stroke="rgba(6,182,212,0.6)"
-          strokeWidth="1"
-          animate={{ y1: [20, 200, 20], y2: [20, 200, 20] }}
+        {/* Scanning line — animate y via transform, not SVG presentation attrs */}
+        <motion.rect
+          x="30"
+          width="180"
+          height="1"
+          fill="rgba(6,182,212,0.6)"
+          animate={{ y: [20, 200, 20] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
         />
       </svg>
