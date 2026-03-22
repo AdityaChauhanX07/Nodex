@@ -25,12 +25,6 @@ const features = [
     color: '#EF4444',
   },
   {
-    icon:  '♫',
-    title: 'Spotify Playback',
-    desc:  'Control your music queue hands-free — next track, volume, and more.',
-    color: '#22C55E',
-  },
-  {
     icon:  '⬛',
     title: 'Presentations',
     desc:  'Navigate PDF slides with subtle head gestures. Perfect for live demos.',
@@ -169,7 +163,7 @@ export default function Landing() {
               marginBottom: 44,
             }}
           >
-            Control YouTube, Spotify, and presentations with facial gestures.
+            Control YouTube and presentations with facial gestures.
             No hands. No keyboard. No mouse.
           </motion.p>
 

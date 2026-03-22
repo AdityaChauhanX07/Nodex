@@ -2,7 +2,6 @@ import { motion } from 'framer-motion'
 
 const modes = [
   { id: 'youtube', label: 'YouTube', icon: '▶' },
-  { id: 'spotify', label: 'Spotify', icon: '♫' },
   { id: 'slides',  label: 'Slides',  icon: '⬛' },
 ]
 
