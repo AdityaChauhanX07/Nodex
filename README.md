@@ -8,6 +8,8 @@
 
 Nodex lets you control YouTube with head movements and facial gestures. No hands, no keyboard. We built it for the Rhodes College Hackathon 2026. MediaPipe Face Mesh runs entirely in your browser at roughly 30–60fps.
 
+**Live Demo:** [https://nodex-one.vercel.app/](https://nodex-one.vercel.app/)
+
 ## Gesture reference
 
 | Gesture | Action |
